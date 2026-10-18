@@ -15,6 +15,7 @@ try {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   art.append(renderer.domElement);
+  document.documentElement.classList.add('motion-ready');
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
   camera.position.set(0, 0, 5);
@@ -56,10 +57,10 @@ try {
     model.add(object);
     model.scale.setScalar(2.5 / Math.max(size.x, size.y, size.z));
     scene.add(model);
-    document.documentElement.classList.add('motion-ready');
     status.textContent = 'Prévia experimental em 3D · role para revelar os benefícios.';
     requestRender();
   }, undefined, () => {
+    document.documentElement.classList.remove('motion-ready');
     status.textContent = 'Não foi possível carregar o modelo. Abra esta prévia por um servidor local.';
   });
   addEventListener('scroll', requestRender, { passive: true });
