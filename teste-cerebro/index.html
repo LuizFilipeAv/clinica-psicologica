@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teste 3D — Clínica Aflora</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#100e0d;color:#efe6dc;font-family:system-ui,sans-serif}header,footer{min-height:45vh;display:grid;place-content:center;text-align:center;padding:3rem}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2.4rem,6vw,5rem);margin:.4rem}small{color:#cfac8e;letter-spacing:.2em;text-transform:uppercase}.scene{height:450vh;position:relative}.sticky{position:sticky;top:0;height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4vw;padding:5vw}.art{position:relative;width:100%;height:min(70vh,650px);display:grid;place-items:center}.art canvas{position:relative;width:100%;height:100%;z-index:1}.glow{position:absolute;width:65%;aspect-ratio:1;background:radial-gradient(circle,#b37b4d33,transparent 70%);filter:blur(35px)}.copy{max-width:570px}.copy h2{font-size:clamp(2rem,4vw,4rem)}ul{list-style:none;padding:0}li{padding:1rem 0;border-bottom:1px solid #ad8b7150;transition:opacity .45s ease,transform .45s ease;color:#efe6dc}.motion-ready li{opacity:0;transform:translateY(12px);visibility:hidden}.motion-ready li.revealed{opacity:1;transform:none;visibility:visible}.note{color:#aa9b8e;font-size:.85rem}.progress{color:#c9a787;font-size:.8rem}@media(max-width:700px){.sticky{grid-template-columns:1fr;grid-template-rows:40vh auto;gap:0;padding:1rem 1.5rem}.art{height:40vh}.copy h2{font-size:2rem;margin:.5rem 0}li{padding:.55rem 0;font-size:.9rem}}@media(prefers-reduced-motion:reduce){.scene{height:auto}.sticky{position:static;height:auto;min-height:100vh}.motion-ready li{opacity:1;visibility:visible;transform:none;transition:none}}
+  </style>
+  <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <header><small>Clínica Aflora · estudo de movimento</small><h1>Um espaço para se escutar.</h1><p>Role para explorar o cérebro em 3D.</p></header>
+  <section class="scene" id="scene"><div class="sticky">
+    <div class="art" id="art" aria-hidden="true"><div class="glow"></div></div>
+    <div class="copy"><small>Um cuidado que acompanha você</small><h2>O que a terapia pode proporcionar</h2>
+      <ul><li>Mais espaço para o autoconhecimento</li><li>Compreensão das próprias emoções</li><li>Novas formas de lidar com desafios</li><li>Reflexão sobre relações e limites</li><li>Apoio em momentos de mudança</li><li>Construção de caminhos possíveis</li></ul>
+      <p class="progress" id="progress">Role para descobrir</p><p class="note" id="status">Carregando modelo 3D…</p>
+    </div>
+  </div></section>
+  <footer><small>Fim do teste</small><h2>O cuidado começa com uma conversa.</h2></footer>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
