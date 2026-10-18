@@ -3,40 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cérebro Holográfico 3D</title>
+  <title>Cérebro Holográfico 3D Completo</title>
   <style>
     body {
       margin: 0;
-      background-color: #141210; /* Seu fundo Preto Amarronzado */
+      background-color: #141210; /* Fundo Preto Amarronzado */
       height: 300vh; /* Altura simulada para testar o scroll */
       overflow-x: hidden;
     }
 
-    .instructions {
-      position: fixed;
-      z-index: 11;
-      left: 24px;
-      top: 20px;
-      color: #eee4d8;
-      font: 14px/1.5 system-ui, sans-serif;
-      pointer-events: none;
-      max-width: 300px;
-    }
+    .instructions { position: fixed; z-index: 11; left: 24px; top: 20px; color: #eee4d8; font: 14px/1.5 system-ui, sans-serif; pointer-events: none; }
     .instructions small { color: #c6a588; }
 
-    /* Container fixo para o cérebro acompanhar a tela */
+    /* Container do cérebro */
     #brain-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      pointer-events: none; /* Permite clicar no conteúdo do site atrás do canvas */
+      pointer-events: none;
       z-index: 10;
     }
   </style>
 
-  <!-- Import do Three.js via CDN -->
+  <!-- Import do Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
@@ -46,7 +37,7 @@
 
   <script>
     // ----------------------------------------------------
-    // 1. CONFIGURAÇÃO INICIAL DA CENA E RENDERIZADOR
+    // 1. CONFIGURAÇÃO DA CENA
     // ----------------------------------------------------
     const container = document.getElementById('brain-container');
     const scene = new THREE.Scene();
@@ -64,53 +55,53 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // ----------------------------------------------------
-    // 2. CRIAÇÃO DA GEOMETRIA DO CÉREBRO (POINT CLOUD)
-    // ----------------------------------------------------
     const brainGroup = new THREE.Group();
     scene.add(brainGroup);
 
-    const particleCount = 4500;
-    const geometry = new THREE.BufferGeometry();
+    // ----------------------------------------------------
+    // 2. GERAR PONTOS DO CÉREBRO
+    // ----------------------------------------------------
+    const particleCount = 600; // Quantidade ajustada para conexões fluídas
+    const pointsArray = [];
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
-    // Cores da sua paleta em RGB normalizado (0 a 1)
-    const colorChampagne = new THREE.Color('#C6A588'); // Detalhes / Champanhe
-    const colorIvory = new THREE.Color('#EEE4D8');     // Marfim suave
+    const colorChampagne = new THREE.Color('#C6A588'); // Champanhe Dourado
+    const colorIvory = new THREE.Color('#EEE4D8');     // Marfim Suave
 
     for (let i = 0; i < particleCount; i++) {
-      // Equações paramétricas aproximadas para os dois hemisférios cerebrais
       const u = Math.random() * Math.PI * 2;
       const v = (Math.random() - 0.5) * Math.PI;
-
       const side = Math.random() < 0.5 ? -1 : 1;
       
-      // Formato elipsoide com reentrâncias para simular os lobos cerebrais
-      let x = (1.2 + 0.2 * Math.cos(3 * v)) * Math.cos(v) * Math.sin(u) * 0.9 + (side * 0.28);
-      let y = (1.0 + 0.15 * Math.sin(4 * u)) * Math.sin(v) * 1.1;
-      let z = (1.5 + 0.2 * Math.cos(2 * u)) * Math.cos(v) * Math.cos(u) * 0.95;
+      // Formato elipsoide dos hemisférios cerebrais
+      let x = (1.2 + 0.2 * Math.cos(3 * v)) * Math.cos(v) * Math.sin(u) * 0.85 + (side * 0.25);
+      let y = (1.0 + 0.15 * Math.sin(4 * u)) * Math.sin(v) * 1.05;
+      let z = (1.5 + 0.2 * Math.cos(2 * u)) * Math.cos(v) * Math.cos(u) * 0.9;
 
-      // Adiciona pequenas ondulações (sulcos cerebrais)
-      x += Math.sin(y * 8) * 0.05;
-      y += Math.cos(z * 8) * 0.05;
-      z += Math.sin(x * 8) * 0.05;
+      // Ondulações (sulcos cerebrais)
+      x += Math.sin(y * 7) * 0.04;
+      y += Math.cos(z * 7) * 0.04;
+      z += Math.sin(x * 7) * 0.04;
 
       positions[i * 3]     = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
 
-      // Interpolação aleatória entre as cores da paleta
+      pointsArray.push(new THREE.Vector3(x, y, z));
+
       const mixedColor = colorChampagne.clone().lerp(colorIvory, Math.random());
       colors[i * 3]     = mixedColor.r;
       colors[i * 3 + 1] = mixedColor.g;
       colors[i * 3 + 2] = mixedColor.b;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    // Geometria dos pontos
+    const pointsGeometry = new THREE.BufferGeometry();
+    pointsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    pointsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    // Textura circular suave para os pontos (estilo luz holográfica)
+    // Textura circular para os vértices
     const canvas = document.createElement('canvas');
     canvas.width = 16;
     canvas.height = 16;
@@ -122,46 +113,74 @@
     ctx.fillRect(0, 0, 16, 16);
     const texture = new THREE.CanvasTexture(canvas);
 
-    const material = new THREE.PointsMaterial({
-      size: 0.045,
+    const pointsMaterial = new THREE.PointsMaterial({
+      size: 0.05,
       vertexColors: true,
       map: texture,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
 
-    const brainParticles = new THREE.Points(geometry, material);
+    const brainParticles = new THREE.Points(pointsGeometry, pointsMaterial);
     brainGroup.add(brainParticles);
 
     // ----------------------------------------------------
-    // 3. LÓGICA DO MOUSE E SCROLL
+    // 3. GERAR LINHAS DE CONEXÃO (REDE NEURAL)
     // ----------------------------------------------------
-    
-    // Posição atual do mouse (normalizada entre -1 e +1)
-    const mouse = { x: 0, y: 0 };
-    // Posição que o objeto busca alcançar (para o efeito de suavização/interpolação)
-    const targetRotation = { x: 0, y: 0 };
+    const linePositions = [];
+    const lineColors = [];
+    const maxDistance = 0.45; // Distância máxima para conectar dois pontos
 
-    // Captura o movimento do mouse
+    for (let i = 0; i < particleCount; i++) {
+      for (let j = i + 1; j < particleCount; j++) {
+        const dist = pointsArray[i].distanceTo(pointsArray[j]);
+
+        if (dist < maxDistance) {
+          // Adiciona os dois pontos da linha
+          linePositions.push(pointsArray[i].x, pointsArray[i].y, pointsArray[i].z);
+          linePositions.push(pointsArray[j].x, pointsArray[j].y, pointsArray[j].z);
+
+          // Cor da linha baseada na paleta (#C6A588 com transparência)
+          const c1 = colorChampagne;
+          lineColors.push(c1.r, c1.g, c1.b);
+          lineColors.push(c1.r, c1.g, c1.b);
+        }
+      }
+    }
+
+    const linesGeometry = new THREE.BufferGeometry();
+    linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    linesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
+
+    const linesMaterial = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.22, // Opacidade sutil e holográfica
+      blending: THREE.AdditiveBlending
+    });
+
+    const brainLines = new THREE.LineSegments(linesGeometry, linesMaterial);
+    brainGroup.add(brainLines);
+
+    // ----------------------------------------------------
+    // 4. INTERAÇÃO COM MOUSE E SCROLL
+    // ----------------------------------------------------
+    const mouse = { x: 0, y: 0 };
+    let scrollRotationY = 0;
+
     window.addEventListener('mousemove', (e) => {
-      // Converte coordenadas da tela de px para a escala [-1, 1]
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     });
 
-    // Rotação de 180° (Math.PI em radianos) baseada no Scroll da página
-    let scrollRotationY = 0;
     window.addEventListener('scroll', () => {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const scrollFraction = window.scrollY / (maxScroll || 1);
-      
-      // 180 graus = Math.PI radianos
-      scrollRotationY = scrollFraction * Math.PI; 
+      scrollRotationY = scrollFraction * Math.PI; // Rotação de 180° no scroll
     });
 
-    // Ajuste em caso de redimensionamento de janela
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -169,23 +188,20 @@
     });
 
     // ----------------------------------------------------
-    // 4. LOOP DE ANIMAÇÃO (RENDER)
+    // 5. LOOP DE ANIMAÇÃO
     // ----------------------------------------------------
     function animate() {
       requestAnimationFrame(animate);
 
-      // A) Define a meta de rotação combinando Mouse + Scroll
-      // O mouse afeta os eixos X e Y suavemente
-      const targetMouseX = mouse.y * 0.3; // Rotação no eixo X baseada na vertical do mouse
-      const targetMouseY = mouse.x * 0.4 + scrollRotationY; // Rotação Y (Mouse + Scroll 180°)
+      // Suavização do movimento do mouse + rotação do scroll
+      const targetMouseX = mouse.y * 0.35;
+      const targetMouseY = mouse.x * 0.45 + scrollRotationY;
 
-      // B) LERP (Linear Interpolation) / Suavização:
-      // Em vez de mudar instantaneamente, o objeto anda 5% (0.05) do caminho a cada frame.
       brainGroup.rotation.x += (targetMouseX - brainGroup.rotation.x) * 0.05;
       brainGroup.rotation.y += (targetMouseY - brainGroup.rotation.y) * 0.05;
 
-      // Pequena oscilação contínua (pulso de flutuação)
-      brainGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.05;
+      // Flutuação sutil
+      brainGroup.position.y = Math.sin(Date.now() * 0.0012) * 0.04;
 
       renderer.render(scene, camera);
     }
